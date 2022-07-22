@@ -8,8 +8,13 @@
 </template>
 
 <script>
+import useKeyDown  from '../composables/use-keydown';
+
 export default {
     setup(props, { emit }) {
+        useKeyDown([
+            { key: 'Escape', fn: () => { emit('closeModal') } },
+        ])
         return {
             emit
         }
