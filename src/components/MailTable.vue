@@ -1,8 +1,10 @@
 <template>
-    <BulkActionBar :emails="unarquivedEmails" />
+    <button @click="selectedScreen = 'inbox'" :disabled="selectedScreen == 'inbox'">Inbox</button>
+    <button @click="selectedScreen = 'archive'" :disabled="selectedScreen == 'archive'">Archived</button>
+    <BulkActionBar :emails="filteredEmails" :selectedScreen="selectedScreen" />
     <table class="mail-table">
         <tbody>
-            <tr v-for="email in unarquivedEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']">
+            <tr v-for="email in filteredEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']">
                 <td>
                     <input type="checkbox" @click="emailSelection.toggle(email)"
                         :checked="emailSelection.emails.has(email)">
@@ -14,7 +16,11 @@
                     <p><strong>{{ email.subject }}</strong> - {{ email.body }}</p>
                 </td>
                 <td class="date" @click="openEmail(email)">{{ format(new Date(email.sentAt), 'MMM do yyyy') }}</td>
-                <td><button @click="archiveEmail(email)">Archive</button></td>
+                <td>
+                    <button @click="archiveEmail(email)">
+                        {{ selectedScreen == 'inbox' ? 'Archive' : 'Unarchive' }}
+                    </button>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -40,7 +46,8 @@ export default {
             emailSelection: useEmailSelection(),
             format,
             emails: ref(emails),
-            openedEmail: ref(null)
+            openedEmail: ref(null),
+            selectedScreen: ref('inbox')
         }
     },
     components: {
@@ -54,8 +61,11 @@ export default {
                 return e1.sentAt < e2.sentAt ? 1 : -1
             })
         },
-        unarquivedEmails() {
-            return this.sortedEmails.filter(e => !e.archived)
+        filteredEmails() {
+            if (this.selectedScreen == 'inbox')
+                return this.sortedEmails.filter(e => !e.archived)
+            else
+                return this.sortedEmails.filter(e => e.archived)
         }
     },
     methods: {
@@ -67,7 +77,7 @@ export default {
             }
         },
         archiveEmail(email) {
-            email.archived = true
+            email.archived = this.selectedScreen == 'inbox'
             this.updateEmail(email)
         },
         changeEmail({ toggleRead, toggleArchive, save, closeModal, changeIndex }) {
@@ -78,7 +88,7 @@ export default {
             if (closeModal) { this.openedEmail = null }
 
             if (changeIndex) {
-                let emails = this.unarquivedEmails
+                let emails = this.filteredEmails
                 let currentIndex = emails.indexOf(this.openedEmail)
                 let newEmail = emails[currentIndex + changeIndex]
                 this.openEmail(newEmail)

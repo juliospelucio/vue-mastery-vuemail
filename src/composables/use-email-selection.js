@@ -22,26 +22,17 @@ export const useEmailSelection = function () {
         })
     }
 
-    let markRead = () => {
-        emails.forEach((email) => {
-            email.read = true;
-            // axios.put(`http://localhost:3000/emails/${email.id}`, email)
+    let forSelected = (fn) => {
+        emails.forEach(email => {
+            fn(email);
+            axios.put(`http://localhost:3000/emails/${email.id}`, email)
+
         })
     }
 
-    let markUnread = () => {
-        emails.forEach((email) => {
-            email.read = false;
-            // axios.put(`http://localhost:3000/emails/${email.id}`, email)
-        })
-    }
-
-    let archive = () => {
-        emails.forEach((email) => {
-            email.archived = true;
-            // axios.put(`http://localhost:3000/emails/${email.id}`, email)
-        })
-    }
+    let markRead = () => { forSelected(e => e.read = true) }
+    let markUnread = () => { forSelected(e => e.read = false) }
+    let archive = () => { forSelected(e => e.archived = true); clear(); console.log(emails); }
 
     return {
         emails,

@@ -5,9 +5,13 @@
                 @click="bulkSelect" />
         </span>
         <span class="buttons">
-            <button @click="emailSelection.markRead(allEmailsSelected)" :disabled="[...emailSelection.emails].every(e => e.read)">Mark Read</button>
-            <button @click="emailSelection.markunread()" :disabled="[...emailSelection.emails].every(e => !e.read)">Mark Unread</button>
-            <button @click="emailSelection.archive()" :disabled="numberSelected === 0">Archive</button>
+            <button @click="emailSelection.markRead(allEmailsSelected)"
+                :disabled="[...emailSelection.emails].every(e => e.read)">Mark Read</button>
+            <button @click="emailSelection.markUnread()" :disabled="[...emailSelection.emails].every(e => !e.read)">Mark
+                Unread</button>
+            <button @click="emailSelection.archive()" :disabled="numberSelected === 0">
+                {{ selectedScreen == 'inbox' ? 'Archive' : 'Unarchive' }}
+            </button>
         </span>
     </div>
 </template>
@@ -41,6 +45,10 @@ export default {
     props: {
         emails: {
             type: Array,
+            required: true
+        },
+        selectedScreen: {
+            type: String,
             required: true
         }
     }
